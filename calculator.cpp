@@ -1,58 +1,60 @@
-#include <iostream> // For user input and output
-#include <cmath> // For pow and sqrt functions
+#include <iostream>
+#include <cmath>
+#include <unordered_map>
+#include <functional>
 
-int main () {
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
 
-    float num1, num2; // Declare two float variables to store user inputs for numbers.
-    char op;          // Declare a char variable to store the operator.
+    float num1, num2;
+    char op;
 
-    //Prompt the user for the first number and read it.
-    std::cout << "Enter a Number: " << std::endl;
+    // Prompt for first number
+    std::cout << "Enter a Number: ";
     std::cin >> num1;
 
-    //Prompt the user for the operator and read it.
-    std::cout << "Enter an Operator: " << std::endl;
+    // Prompt for operator
+    std::cout << "Enter an Operator (+, -, *, /, ^ for power, r for square root): ";
     std::cin >> op;
 
-    // If the operator is not 'r' (for square root), ask for a second number.
-    if (op != 'r') {
-        std::cout << "Enter a Number: " << std::endl;
+    // Define operations with lambda functions
+    std::unordered_map<char, std::function<float(float, float)>> operations = {
+        {'+', [](float a, float b) { return a + b; }},
+        {'-', [](float a, float b) { return a - b; }},
+        {'*', [](float a, float b) { return a * b; }},
+        {'/', [](float a, float b) { return b != 0 ? a / b : NAN; }},
+        {'^', [](float a, float b) { return pow(a, b); }}
+    };
+
+    // Handle square root operation separately as it only requires one operand
+    if (op == 'r') {
+        if (num1 >= 0) {
+            std::cout << "Result: " << sqrt(num1) << '\n';
+        }
+        else {
+            std::cout << "Error: Cannot calculate square root of a negative number.\n";
+        }
+    }
+    else {
+        // For other operations, get the second number
+        std::cout << "Enter another Number: ";
         std::cin >> num2;
+
+        // Perform the operation using the map
+        if (operations.count(op)) {
+            float result = operations[op](num1, num2);
+            if (std::isnan(result)) {
+                std::cout << "Error: Division by zero.\n";
+            }
+            else {
+                std::cout << "Result: " << result << '\n';
+            }
+        }
+        else {
+            std::cout << "Error: Invalid operator.\n";
+        }
     }
 
-    // Use a switch statement to perform the operation based on the operator input.
-    switch(op) {
-        case '+': // If the operator is '+', add num1 and num2.
-            std::cout << num1 + num2 << std::endl;
-            break;
-        case '-': // If the operator is '-', subtract num2 from num1.
-            std::cout << num1 - num2 << std::endl;
-            break;
-        case '*': // If the operator is '*', multiply num1 and num2.
-            std::cout << num1 * num2 << std::endl;
-            break;
-        case '/': // If the operator is '/', divide num1 by num2.
-            if (num1 != 0) { // Check if num2 is not zero to avoid division by zero error.
-                std::cout << num1 / num2 << std::endl;
-            } else {
-                std::cout << "Error: Division by Zero" << std::endl;
-            }
-            break;
-        case '^': // If the operator is '^', raise num1 to the power of num2.
-            std::cout << pow(num1, num2) << std::endl; // pow function is used for exponentiation.
-            break;
-        case 'r': // If the operator is 'r', calculator the square root of num1
-            if (num1 >= 0) { // Check if num1 is non-negative to avoid complex results.
-                std::cout << sqrt(num1) << std::endl; // sqrt function is used for square root.
-            } else {
-                std::cout << "Error: Square Root of Negative Number" << std::endl;
-            }
-            break;
-        default: // If the operator doesn't match any case, show an error message.
-            std::cout << "Error: Ivalid Operator" << std::endl;
-            break;
-    }
-
-    return 0; // End of program
-
+    return 0;
 }
